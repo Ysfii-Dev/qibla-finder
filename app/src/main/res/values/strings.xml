@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Qibla Finder</string>
+    <string name="Kota">Medan, Indonesia</string>
+    <string name="degree">360</string>
 </resources>
