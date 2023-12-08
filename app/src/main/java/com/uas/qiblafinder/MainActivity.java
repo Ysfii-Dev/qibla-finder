@@ -8,43 +8,30 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
     private Compass compass;
     private ImageView compassOuter, compassDegree, compassArrow;
     private TextView textCity, textDegree;
     private float currentAzimuth;
+    private String city;
     SharedPreferences prefs;
     GPSTracker gps;
-
-    public void SaveBoolean(String key, Boolean value) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    public Boolean GetBoolean(String key) {
-        Boolean result = prefs.getBoolean(key, false);
-        return result;
-    }
-
-    public void SaveFloat(String key, Float value) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putFloat(key, value);
-        editor.apply();
-    }
-
-    public Float GetFloat(String key) {
-        Float result = prefs.getFloat(key, 0);
-        return result;
-    }
+    Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +45,16 @@ public class MainActivity extends AppCompatActivity {
         compassDegree = (ImageView) findViewById(R.id.compassDegree);
         compassArrow = (ImageView) findViewById(R.id.compassArrow);
 
+        textCity = (TextView) findViewById(R.id.textCity);
+        textDegree = (TextView) findViewById(R.id.textDegree);
+
         setupCompass();
         fetchGPS();
+
+        String qiblaDeg = String.valueOf(Math.round(GetFloat("qibla_degree"))) + "°";
+
+        textCity.setText(city);
+        textDegree.setText(qiblaDeg);
     }
 
     @Override
@@ -98,6 +93,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void SaveBoolean(String key, Boolean value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    public Boolean GetBoolean(String key) {
+        Boolean result = prefs.getBoolean(key, false);
+        return result;
+    }
+
+    public void SaveFloat(String key, Float value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putFloat(key, value);
+        editor.apply();
+    }
+
+    public Float GetFloat(String key) {
+        Float result = prefs.getFloat(key, 0);
+        return result;
+    }
+
     private void setupCompass() {
         Boolean permissionGranted = GetBoolean("permission_granted");
 
@@ -132,12 +149,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void adjustCompassArrow(float azimuth) {
         float qiblaDegree = GetFloat("qibla_degree");
-        Animation animation = new RotateAnimation(-(currentAzimuth)+qiblaDegree, -azimuth, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        Animation animation = new RotateAnimation(-(currentAzimuth) + qiblaDegree, -azimuth, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         currentAzimuth = (azimuth);
+
+        int minAzimuth = (int) (Math.floor(GetFloat("qibla_degree")) - 3);
+        int maxAzimuth = (int) (Math.ceil(GetFloat("qibla_degree")) + 3);
+
+        if (currentAzimuth >= minAzimuth && currentAzimuth <= maxAzimuth ) {
+            compassOuter.setImageResource(R.drawable.compass_outer_green);
+        } else {
+            compassOuter.setImageResource(R.drawable.compass_outer_gray);
+        }
+
         animation.setDuration(500);
         animation.setRepeatCount(0);
         animation.setFillAfter(true);
-        compassDegree.startAnimation(animation);
+        compassArrow.startAnimation(animation);
     }
 
     @SuppressLint("MissingPermission")
@@ -169,18 +196,28 @@ public class MainActivity extends AppCompatActivity {
     public void fetchGPS() {
         double result = 0;
         gps = new GPSTracker(this);
+        geocoder = new Geocoder(this, Locale.getDefault());
+        StringBuilder builder = new StringBuilder();
 
         if (gps.canGetLocation()) {
-            double myLat = Math.toRadians(gps.getLatitude());
+            double myLat = gps.getLatitude();
             double myLon = gps.getLongitude();
+
+            try {
+                List<Address> addresses = geocoder.getFromLocation(myLat, myLon, 1);
+                city = addresses.get(0).getSubAdminArea();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             if (myLat >= 0.001 && myLon >= 0.001) {
                 // posisi ka'bah
                 double kabahLat = Math.toRadians(21.422487);
                 double kabahLon = 39.826206;
+                double myRadiansLat = Math.toRadians(myLat);
                 double lonDiff = Math.toRadians(kabahLon - myLon);
                 double y = Math.sin(lonDiff) * Math.cos(kabahLat);
-                double x = Math.cos(myLat) * Math.sin(kabahLat) - Math.sin(myLat) * Math.cos(kabahLat) * Math.cos(lonDiff);
+                double x = Math.cos(myRadiansLat) * Math.sin(kabahLat) - Math.sin(myRadiansLat) * Math.cos(kabahLat) * Math.cos(lonDiff);
                 result = (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
                 SaveFloat("qibla_degree", (float) result);
             }

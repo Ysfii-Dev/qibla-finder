@@ -28,6 +28,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     public GPSTracker(Context context) {
         this.context = context;
+        getLocation();
     }
 
     @SuppressLint("MissingPermission")
