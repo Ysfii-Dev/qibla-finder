@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private Compass compass;
     private ImageView compassOuter, compassDegree, compassArrow;
     private TextView textCity, textDegree;
-    private ImageButton btnDeveloper;
+    private ImageButton btnDeveloper, btnJadwal;
     private float currentAzimuth;
     private String city;
     SharedPreferences prefs;
@@ -61,10 +61,20 @@ public class MainActivity extends AppCompatActivity {
         textDegree.setText(qiblaDeg);
 
         btnDeveloper = (ImageButton) findViewById(R.id.btnDeveloper);
+        btnJadwal = (ImageButton) findViewById(R.id.btnJadwal);
+
         btnDeveloper.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DeveloperActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnJadwal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, JadwalActivity.class);
                 startActivity(intent);
             }
         });
