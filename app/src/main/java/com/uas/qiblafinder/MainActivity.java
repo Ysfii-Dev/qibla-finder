@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -13,8 +14,10 @@ import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private Compass compass;
     private ImageView compassOuter, compassDegree, compassArrow;
     private TextView textCity, textDegree;
+    private ImageButton btnDeveloper;
     private float currentAzimuth;
     private String city;
     SharedPreferences prefs;
@@ -55,6 +59,15 @@ public class MainActivity extends AppCompatActivity {
 
         textCity.setText(city);
         textDegree.setText(qiblaDeg);
+
+        btnDeveloper = (ImageButton) findViewById(R.id.btnDeveloper);
+        btnDeveloper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, DeveloperActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
