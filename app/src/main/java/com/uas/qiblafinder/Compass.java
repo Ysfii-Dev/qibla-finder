@@ -14,16 +14,15 @@ public class Compass implements SensorEventListener {
 
     private CompassListener listener;
 
-    private SensorManager sensorManager;
-    private Sensor aSensor;
-    private Sensor mSensor;
+    private final SensorManager sensorManager;
+    private final Sensor aSensor;
+    private final Sensor mSensor;
 
-    private float[] mGravity = new float[3];
-    private float[] mMagnetic = new float[3];
-    private float[] R = new float[9];
-    private float[] I = new float[9];
+    private final float[] mGravity = new float[3];
+    private final float[] mMagnetic = new float[3];
+    private final float[] R = new float[9];
+    private final float[] I = new float[9];
 
-    private float azimuth;
     private float azimuthFix;
 
     public Compass(Context context) {
@@ -43,10 +42,6 @@ public class Compass implements SensorEventListener {
 
     public void setAzimuthFix(float azimuth) {
         azimuthFix = azimuth;
-    }
-
-    public void resetAzimuthFix() {
-        setAzimuthFix(0);
     }
 
     public void setListener(CompassListener listener) {
@@ -77,7 +72,7 @@ public class Compass implements SensorEventListener {
 
                 SensorManager.getOrientation(R, orientation);
 
-                azimuth = (float) Math.toDegrees(orientation[0]);
+                float azimuth = (float) Math.toDegrees(orientation[0]);
                 azimuth = (azimuth + azimuthFix + 360) % 360;
 
                 if (listener != null) {

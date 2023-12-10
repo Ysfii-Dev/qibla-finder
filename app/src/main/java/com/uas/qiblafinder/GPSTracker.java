@@ -14,6 +14,8 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 public class GPSTracker extends Service implements LocationListener {
     private final Context context;
     boolean isGPSEnabled = false;
@@ -88,12 +90,6 @@ public class GPSTracker extends Service implements LocationListener {
         return location;
     }
 
-    public void stopUsingGPS() {
-        if (locationManager != null) {
-            locationManager.removeUpdates(GPSTracker.this);
-        }
-    }
-
     public double getLatitude() {
         if (location != null) {
             lat = location.getLatitude();
@@ -138,15 +134,15 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(@NonNull Location location) {
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
+    public void onProviderDisabled(@NonNull String provider) {
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
+    public void onProviderEnabled(@NonNull String provider) {
     }
 
     @Override

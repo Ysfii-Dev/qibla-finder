@@ -13,7 +13,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -55,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setupCompass();
         fetchGPS();
 
-        String qiblaDeg = String.valueOf(Math.round(GetFloat("qibla_degree"))) + "°";
+        String qiblaDeg = Math.round(GetFloat("qibla_degree")) + "°";
 
         textCity.setText(city);
         textDegree.setText(qiblaDeg);
@@ -123,8 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Boolean GetBoolean(String key) {
-        Boolean result = prefs.getBoolean(key, false);
-        return result;
+        return prefs.getBoolean(key, false);
     }
 
     public void SaveFloat(String key, Float value) {
@@ -134,10 +132,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Float GetFloat(String key) {
-        Float result = prefs.getFloat(key, 0);
-        return result;
+        return prefs.getFloat(key, 0);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private void setupCompass() {
         Boolean permissionGranted = GetBoolean("permission_granted");
 
@@ -199,28 +197,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    SaveBoolean("permission_granted", true);
-                    setupCompass();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Permission tidak diizinkan!", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-                return;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                SaveBoolean("permission_granted", true);
+                setupCompass();
+            } else {
+                Toast.makeText(getApplicationContext(), "Permission tidak diizinkan!", Toast.LENGTH_LONG).show();
+                finish();
             }
+            return;
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void fetchGPS() {
-        double result = 0;
+        double result;
         gps = new GPSTracker(this);
         geocoder = new Geocoder(this, Locale.getDefault());
-        StringBuilder builder = new StringBuilder();
 
         if (gps.canGetLocation()) {
             double myLat = gps.getLatitude();
@@ -228,7 +223,9 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 List<Address> addresses = geocoder.getFromLocation(myLat, myLon, 1);
-                city = addresses.get(0).getSubAdminArea();
+                if (addresses != null) {
+                    city = addresses.get(0).getSubAdminArea();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
