@@ -16,7 +16,7 @@ Here are the steps to run this project.
 3. Open from Android Studio.
 4. That's all.
 
-## Author
+## Authors
 
 - [Mhd Zulfikar Pinem](https://github.com/zulfikarpinem)
 - [Yusfi Syawali](https://github.com/Ysfii-Dev)
